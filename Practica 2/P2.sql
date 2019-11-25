@@ -98,4 +98,69 @@
     AND CD.CERTIDUMBRE > 0.8
     GROUP BY P.NOMBRECOMPLETO;
     
+-- PRACTICA 2 - AMPLIACIÓN 
+
+-- 1.Obtener el DNI de todos los votantes que tengan dos 6s en su teléfono 
+-- pero contemplar que no tienen más de tres
+    
+    SELECT DNI 
+    FROM VOTANTES 
+    WHERE TELEFONO LIKE '%6%6%' -- CASO PARA QUE TENGA MAS DE 2 SEISES
+        AND NOT TELEFONO LIKE '%6%6%6%';    -- PERO QUE NO TENGA MAS DE 3 SEISES
+
+-- 2.Obtener el DNI de todos los votantes que tengan tres 6s en su teléfono 
+-- pero contemplar que no tienen más de tres, dos de ellos deben estar juntos
+
+    SELECT TELEFONO 
+    FROM VOTANTES 
+    WHERE TELEFONO LIKE '%6%6%6%' 
+        AND NOT TELEFONO LIKE '%6%6%6%6%'
+        AND TELEFONO LIKE '%66%';
+
+-- 3.Mostrar aquella localidad cuyo número de habitantes acaba igual que su 
+-- número de provincia, mostrando también el nombre de la provincia a la que 
+-- pertenece
+
+    SELECT L.NOMBRE
+    FROM LOCALIDADES L
+    WHERE L.IDLOCALIDAD = L.PROVINCIA;
+
+
+-- 4.Mostrar el nombre completo de los votantes cuyo teléfono acaba igual que 
+-- su dni
+
+-- 5.Mostrar el nombre completo de aquellos votantes que contienen al menos 
+-- una 'S' y cuya fecha de nacimiento es anterior al 12 de Febrero de 1990.
+
+-- 6.Usar el operador DISTINCT (http://www.w3schools.com/sql/sql_distinct.asp). 
+-- Obtener todos los votantes que han participado en alguna consulta. Dichos 
+-- votantes deben aparecer en orden decreciente de dni
+
+-- 7.Mostrar el dni de aquellos votantes que han participado en más de tres 
+-- consultas 
+
+-- 8.Mostrar el nombre completo de los votantes que han participado en más de 
+-- tres consultas y especificar en cu?ntas consultas participaron  
+-- (en orden creciente)
+
+-- 9. Obtener el nombre de los votantes y el nombre de su localidad para 
+-- aquellos votantes que han sido consultados en una localidad que tiene más 
+-- de 300000 habitantes
+
+-- 10.Mostrar el nombre de cada partido político y la máxima certidumbre que 
+-- tiene para sus consultas
+
+-- 11.Mostrar el nombre del votante y su certidumbre media en todas las 
+-- consultas en las que ha respondido de manera afirmativa
+
+-- 12.Mostrar el nombre del votante y su certidumbre media en todas las 
+-- consultas en las que ha respondido de manera afirmativa ÚNICAMENTE para 
+-- aquellos votantes cuyo certidumbre media est? entre 0'5 y 0'8.
+
+-- 13.Mostrar el nombre de los partidos y la certidumbre media obtenida para 
+-- cada partido considerando sólo aquellas consultas en las que el encuestado 
+-- ha contestado negativamente a votar a dicho partido y con una certidumbre 
+-- significativa (por encima del 60%)
+
+
     
