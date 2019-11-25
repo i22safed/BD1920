@@ -2,6 +2,19 @@
 
 -- 1.Obtener el nombre de todos los votantes cuyo segundo apellido acaba en “n”
 
+    -- Se utiliza el operador LIKE en la clausula WHERE para especificar un 
+    -- patrón en una columna. Se puede añadir dos argumentos para detectar la 
+    -- expresión regular: 
+      --  · % indica cero o varios caracteres. 
+      --  · _ indica solo un carácter. 
+      --    * [...] LIKE 'a%' -> empiece por 'a' 
+      --    * [...] LIKE '%a' -> termine en 'a' 
+      --    * [...] LIKE '%a%' -> contenga una 'a'
+      --    * [...] LIKE '_a%' -> la segunda letra sea una 'a'
+
+    SELECT V.NOMBRECOMPLETO FROM VOTANTES V
+    WHERE V.NOMBRECOMPLETO LIKE '%n';
+    
 -- 2.Obtener el DNI de todos los votantes que tengan al menos tres 5s en su DNI
 
 -- 3.Obtener el nombre de aquellos votantes cuya fecha de nacimiento sea 
