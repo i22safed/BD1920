@@ -75,7 +75,7 @@
     FROM PARTIDOS P, CONSULTAS_DATOS CD 
     WHERE P.IDPARTIDO = CD.PARTIDO
     GROUP BY P.NOMBRECOMPLETO
-    HAVING COUNT(CD.PARTIDO) > 10;    
+    HAVING COUNT(CD.PARTIDO) > 10; 
     
 -- 9.Mostrar el nombre del partido y el número de consultas realizadas para 
 -- aquellos partidos que aparecen en más de 10 consultas. 
@@ -129,24 +129,63 @@
 -- 4.Mostrar el nombre completo de los votantes cuyo teléfono acaba igual que 
 -- su dni
 
+    SELECT NOMBRECOMPLETO FROM VOTANTES
+    WHERE MOD(TELEFONO,10) = MOD(DNI,10);
+
 -- 5.Mostrar el nombre completo de aquellos votantes que contienen al menos 
 -- una 'S' y cuya fecha de nacimiento es anterior al 12 de Febrero de 1990.
+    
+        SELECT NOMBRECOMPLETO FROM VOTANTES
+        WHERE NOMBRECOMPLETO LIKE '%S%'
+            OR NOMBRECOMPLETO LIKE '%s%'
+            AND FECHANACIMIENTO < '12021990';
 
 -- 6.Usar el operador DISTINCT (http://www.w3schools.com/sql/sql_distinct.asp). 
 -- Obtener todos los votantes que han participado en alguna consulta. Dichos 
 -- votantes deben aparecer en orden decreciente de dni
 
+        SELECT V.NOMBRECOMPLETO, V.DNI  
+        FROM VOTANTES V
+        WHERE EXISTS( 
+                SELECT DISTINCT(C.VOTANTE) 
+                FROM CONSULTAS C
+                WHERE V.DNI = C.VOTANTE
+        )
+        ORDER BY V.DNI DESC; 
+            
+        -- Seleccionamos el nombre completo y el DNI de aquellos votantes 
+        -- que existen en la consulta de los votantes que han participado 
+        -- en alguna consulta. Y ordenados de manera decreciente. 
+
 -- 7.Mostrar el dni de aquellos votantes que han participado en más de tres 
 -- consultas 
-
+    
+        SELECT C.VOTANTE, COUNT(C.VOTANTE)
+        FROM CONSULTAS C
+        -- WHERE COUNT(C.VOTANTE) > 3  -> EL WHERE NO PUEDE IR CON EL COUNT 
+        HAVING COUNT(C.VOTANTE) > 3 
+        GROUP BY C.VOTANTE; 
+    
 -- 8.Mostrar el nombre completo de los votantes que han participado en más de 
--- tres consultas y especificar en cu?ntas consultas participaron  
+-- tres consultas y especificar en cuantas consultas participaron  
 -- (en orden creciente)
+
+    SELECT V.NOMBRECOMPLETO, CONT 
+    FROM VOTANTES V , (
+        SELECT C.VOTANTE AS VOT, COUNT(C.VOTANTE) AS CONT 
+        FROM CONSULTAS C
+        HAVING COUNT(C.VOTANTE) > 3 
+        GROUP BY C.VOTANTE
+    )
+    WHERE V.DNI = VOT
+    ORDER BY CONT ASC;
 
 -- 9. Obtener el nombre de los votantes y el nombre de su localidad para 
 -- aquellos votantes que han sido consultados en una localidad que tiene más 
 -- de 300000 habitantes
 
+    -- [Hacer cuando sobre tiempo]
+        
 -- 10.Mostrar el nombre de cada partido político y la máxima certidumbre que 
 -- tiene para sus consultas
 
