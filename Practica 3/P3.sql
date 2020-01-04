@@ -1,5 +1,4 @@
 
-
 -- Práctica 3
 
 -- 1-Obtener el nombre de todos los votantes cuyo 
@@ -111,15 +110,22 @@
 -- descendente en cuanto a número de participaciones y no mostrando los 
 -- resultados del segundo votante de más edad. 
 
-         
-         SELECT MIN(V.FECHANACIMIENTO) 
-         FROM VOTANTES V 
-         WHERE V.FECHANACIMIENTO != (             
-             SELECT MIN(FECHANACIMIENTO) 
-             FROM VOTANTES 
-         )
-         
-
+        
+        SELECT VOTANTE, COUNT(VOTANTE) AS CONTEO
+        FROM CONSULTAS C, (          
+             SELECT * FROM VOTANTES V1
+             WHERE FECHANACIMIENTO != (
+                 SELECT MIN(V.FECHANACIMIENTO) 
+                 FROM VOTANTES V 
+                 WHERE V.FECHANACIMIENTO != (             
+                     SELECT MIN(FECHANACIMIENTO) 
+                     FROM VOTANTES 
+                 )
+            )  
+        ) SPLIT
+        WHERE C.VOTANTE = SPLIT.DNI
+        GROUP BY C.VOTANTE
+        ORDER BY CONTEO DESC; 
 
 
 
