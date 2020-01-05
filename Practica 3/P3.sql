@@ -40,16 +40,19 @@
 --4. Obtener el DNI del segundo votante de más edad de entre todos los 
 -- votantes existentes en la base de datos.
         
-        SELECT DNI
-        FROM(
-            SELECT FECHANACIMIENTO 
-            FROM VOTANTES V2, (
-                SELECT MIN(V1.FECHANACIMIENTO) AS VIEJO
-                FROM VOTANTES V1
-            )
-            WHERE V2.FECHANACIMIENTO != VIEJO        
-        )
-        WHERE MIN(FECHANACIMIENTO);
+        SELECT DNI 
+        FROM VOTANTES 
+        WHERE FECHANACIMIENTO = (
+            SELECT MIN(SUB2.FECHANACIMIENTO) 
+            FROM (        
+                SELECT VOT.DNI, VOT.FECHANACIMIENTO        
+                FROM VOTANTES VOT   
+                WHERE VOT.FECHANACIMIENTO != (              
+                    SELECT MIN(FECHANACIMIENTO)                      
+                    FROM VOTANTES     
+                )   
+            ) SUB2 
+        ); 
     
     
 -- 5- Obtener el DNI del votante y el numero de veces que dicho 
@@ -128,11 +131,79 @@
         ORDER BY CONTEO DESC; 
 
 
+-- Práctica 3. Ampliación 
+
+-- 1. Mostrar el nombre de pila (sin apellidos), nombre de 
+-- localidad y nombre de comunidad de los votantes pertenecientes 
+-- a las localidades 1, 3 ó 9. Personaliza el título de dichas 
+-- columnas.
+
+        SELECT V.NOMBRECOMPLETO AS NOMBRE, L.NOMBRE AS LOCALIDAD, P.COMUNIDAD AS COMUNIDAD
+        FROM VOTANTES V,  LOCALIDADES L, PROVINCIAS P
+        WHERE V.LOCALIDAD = L.IDLOCALIDAD 
+            AND L.PROVINCIA = P.IDPROVINCIA
+            AND (
+                L.IDLOCALIDAD = 1 OR L.IDLOCALIDAD = 3 OR L.IDLOCALIDAD = 9
+            );
+
+-- 2. Ordenar las localidades en base a su identificador de localidad, 
+-- de manera que el resultado quede así: 
+
+        SELECT L1.NOMBRE || ' va antes que ' || L2.NOMBRE AS ORDENACIÓN
+        FROM LOCALIDADES L1, LOCALIDADES L2 
+        WHERE L1.IDLOCALIDAD + 1 = L2.IDLOCALIDAD; 
+
+-- 3. Obtener el nombre de las localidades que tienen un número de habitantes 
+-- mayor que la localidad del votante que es el segundo votante de más edad de 
+-- entre todos los votantes existentes en la base de datos
+
+        SELECT NOMBRE 
+        FROM LOCALIDADES 
+        WHERE NUMEROHABITANTES > (
+            
+            SELECT L.NUMEROHABITANTES 
+            FROM LOCALIDADES L
+            WHERE L.IDLOCALIDAD = (
+               
+                SELECT LOCALIDAD 
+                FROM VOTANTES 
+                WHERE FECHANACIMIENTO = (
+                    
+                    SELECT MIN(SUB2.FECHANACIMIENTO) 
+                    FROM (        
+                        SELECT VOT.DNI, VOT.FECHANACIMIENTO        
+                        FROM VOTANTES VOT   
+                        WHERE VOT.FECHANACIMIENTO != (              
+                            SELECT MIN(FECHANACIMIENTO)                      
+                            FROM VOTANTES     
+                        )   
+                    ) SUB2 
+                )
+            )
+        ); 
+        
+        
+-- 4. Mostrar el nombre completo de los votantes, número de localidad a la 
+-- que pertenecen y “mayoria edad” (mostrará: 'mayor edad' y 'menor edad' 
+-- en lugar de su fecha de nacimiento en función de si son mayores de edad 
+-- o no). Los resultados de esta consulta sólo recogerán a los votantes 
+-- de las localidades 2, 4 y 8 y quedarán ordenados por la nueva columna 
+-- de “mayoria edad”.
 
 
 
 
 
 
- 
 
+
+
+
+
+
+
+
+
+
+
+-- 
