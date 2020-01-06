@@ -190,20 +190,105 @@
 -- de las localidades 2, 4 y 8 y quedarán ordenados por la nueva columna 
 -- de “mayoria edad”.
 
+        -- 1. Seleccionamos primeramente los que son mayores de edad 
+        SELECT V1.NOMBRECOMPLETO, V1.LOCALIDAD, 
+                DECODE(V1.FECHANACIMIENTO,V1.FECHANACIMIENTO,' MAYOR') AS MAYORIA
+        FROM VOTANTES V1
+        WHERE V1.FECHANACIMIENTO < '01012000' 
+            AND (V1.LOCALIDAD = 2 OR V1.LOCALIDAD = 4 OR V1.LOCALIDAD = 8)
+        
+        UNION   -- Realizamos la UNION de cada una de las consultas 
+        
+        -- 2. Seleccionamos después los que son menores de edad 
+        SELECT V2.NOMBRECOMPLETO, V2.LOCALIDAD,
+                DECODE(V2.FECHANACIMIENTO,V2.FECHANACIMIENTO,' MENOR') AS MAYORIA
+        FROM VOTANTES V2
+        WHERE V2.FECHANACIMIENTO > '01012000'
+            AND (V2.LOCALIDAD = 2 OR V2.LOCALIDAD = 4 OR V2.LOCALIDAD = 8)
+
+-- 5. Muestra el nombre de las localidades, su número de habitantes y el nombre 
+-- de la comunidad a la que pertenecen. Se recogerán sólo aquellas localidades 
+-- cuyo número de provincia sea el 1, 2, o 3 y que tengan mayor número de 
+-- habitantes que alguna de las localidades de la provincia número 4. 
 
 
+    SELECT L.NOMBRE, L.NUMEROHABITANTES, P.COMUNIDAD 
+    FROM LOCALIDADES L, PROVINCIAS P
+    WHERE L.PROVINCIA = P.IDPROVINCIA
+        AND (P.IDPROVINCIA = 1 OR P.IDPROVINCIA = 2 OR P.IDPROVINCIA = 3)
+        AND L.NUMEROHABITANTES > 
+            (   
+                SELECT NUMEROHABITANTES 
+                FROM LOCALIDADES
+                WHERE IDLOCALIDAD = 4
+                                    
+            ); 
+    
+    
+    
+-- 6. Obtener el nombre de los votantes cuya participación ha sido menor que 
+-- la media de participaciones de todos los votantes a pesar de encontrarse 
+-- en situación laboral de 'Activo'. 
 
+    SELECT * FROM CONSULTAS; 
 
+    SELECT V.NOMBRECOMPLETO AS NOMBRE, CTEO.CONTEO 
+    FROM VOTANTES V,(
+            SELECT C.VOTANTE, COUNT(C.VOTANTE) AS CONTEO 
+            FROM CONSULTAS C 
+            GROUP BY C.VOTANTE
+    ) CTEO   
+    WHERE V.DNI = CTEO.VOTANTE
+        AND CTEO.CONTEO < (
+            SELECT AVG(COUNT(C.VOTANTE))    -- SUBCONSULTA PARA HALLAR EL
+            FROM CONSULTAS C                -- PROMEDIO DE LAS VITACIONES 
+            GROUP BY C.VOTANTE
+        );
+    
 
+-- 7. Mostrar el nombre de las localidades ordenadas de mayor a menor nivel de 
+-- estudiosSuperiores medio de sus votantes. 
 
+        SELECT L.NOMBRE AS LOCALIDAD, CONTEO 
+        FROM LOCALIDADES L,  (
+            SELECT LOCALIDAD, COUNT(ESTUDIOSSUPERIORES) AS CONTEO
+            FROM ( 
+                SELECT V.ESTUDIOSSUPERIORES, V.LOCALIDAD
+                FROM VOTANTES V
+            )
+            GROUP BY LOCALIDAD
+            ORDER BY CONTEO DESC
+        ) 
+        WHERE L.IDLOCALIDAD = LOCALIDAD; 
+        
 
-
-
-
-
-
-
-
-
-
--- 
+-- 8. Mostrar aquellas localidades cuyos votantes tienen un nivel de 
+-- estudiosSuperiores medio mayor que todas las medias de estudiosSuperiores 
+-- de las provincias.
+ 
+        SELECT * 
+        FROM (
+            SELECT L.NOMBRE AS LOCALIDAD, CONTEO 
+            FROM LOCALIDADES L,  (
+                SELECT LOCALIDAD, COUNT(ESTUDIOSSUPERIORES) AS CONTEO
+                FROM ( 
+                    SELECT V.ESTUDIOSSUPERIORES, V.LOCALIDAD
+                    FROM VOTANTES V
+                )
+                GROUP BY LOCALIDAD
+                ORDER BY CONTEO DESC
+            ) 
+            WHERE L.IDLOCALIDAD = LOCALIDAD
+        ) WHERE CONTEO > (        
+            SELECT AVG(COUNT(ESTUDIOSSUPERIORES))
+            FROM ( 
+                SELECT V.ESTUDIOSSUPERIORES, V.LOCALIDAD
+                FROM VOTANTES V
+            )
+            GROUP BY LOCALIDAD
+        )
+        
+        
+        
+        
+ 
