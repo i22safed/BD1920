@@ -1,6 +1,4 @@
 
-
-
 -- Practica 4 PLSQL
 
 -- 1. Muestre por pantalla el clásico “Hola mundo”, pero además muestre la 
@@ -138,6 +136,52 @@
 -- CONSULTAS DATOS. Además muestre la media redondeada a 3 cifras significativas
 -- a modo de información. Muestre los datos como sigue ordenados según el 
 -- valor de certidumbre. 
+
+    
+    SET SERVEROUTPUT ON; 
+    DECLARE 
+        CONT NUMBER:=1;
+        MEDIACERT NUMBER:= 0.0;
+        CURSOR CDATOS IS 
+            SELECT NOMBRECOMPLETO, CERTIDUMBRE
+            FROM CONSULTAS_DATOS, PARTIDOS
+            WHERE RESPUESTA = 'Si'
+                AND IDPARTIDO = PARTIDO
+                AND CERTIDUMBRE > 0.5;
+        
+        PART PARTIDOS.NOMBRECOMPLETO%TYPE;
+        CERT CONSULTAS_DATOS.CERTIDUMBRE%TYPE;
+        
+        
+    BEGIN 
+        SELECT ROUND(AVG(CERTIDUMBRE),3)
+        INTO MEDIACERT
+        FROM CONSULTAS_DATOS;    
+        
+        DBMS_OUTPUT.PUT_LINE('La media de la certidumbre es: ' || MEDIACERT);
+        
+        -- Abrimos el cursor 
+        OPEN CDATOS;
+        
+        LOOP 
+            FETCH CDATOS INTO PART , CERT; 
+            EXIT WHEN CDATOS%NOTFOUND;
+                DBMS_OUTPUT.PUT_LINE(PART || ' -> ' || CERT);
+        END LOOP; 
+        CLOSE CDATOS; 
+    END;
+    
+    
+
+
+
+
+
+
+
+
+
+-- 
 
 
 
