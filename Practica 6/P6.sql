@@ -109,21 +109,98 @@
 -- una fecha válida (menor o igual que la fecha actual). Además, registre 
 -- dicho cambio en la tabla de auditoría. 
 
-        CREATE OR REPLACE TRIGGER CHECK_FECHA
-        BEFORE INSERT OR UPDATE 
-            OF FECHA 
-            ON CONSULTAS 
-            FOR EACH ROW
-        BEGIN 
-            IF INSERTING THEN 
-                DBMS_OUTPUT.PUT_LINE('INSERCIÓN');
-                --[CUERPO EN CASO DE INSERCIÓN]
-            END IF; 
-            IF UPDATING THEN 
-                DBMS_OUTPUT.PUT_LINE('ACTUALIZACIÓN');
-                --[CUERPO EN CASO DE ACTUALIZACIÓN]
-            END IF; 
-        END; 
+-- .new Y .old SON SOLAMENTE REGISTROS DE  ||LECTURA|| 
+
+    CREATE OR REPLACE TRIGGER CHECK_FECHA_CONSULTAS  
+    AFTER UPDATE 
+        OF FECHA 
+        ON CONSULTAS 
+    FOR EACH ROW 
+    DECLARE 
+        FECH DATE; 
+    BEGIN 
+        SELECT TO_CHAR(SysDate,'DD/MM/YY')
+        INTO FECH 
+        FROM dual;
+        
+        IF INSERTING THEN
+            IF :NEW.FECHA > FECH THEN 
+                UPDATE CONSULTAS 
+                SET FECHA = FECH 
+                WHERE :NEW.IDCONSULTA = :OLD.IDCONSULTA; 
+            END IF;
+        END IF;     
+    END;
+    
+    
+    INSERT INTO CONSULTAS
+    VALUES (56,2,30559075,'01/01/21');   
+    INSERT INTO CONSULTAS
+    VALUES (57,2,30559075,'01/01/19'); 
+    INSERT INTO CONSULTAS
+    VALUES (58,2,30559075,'21/01/21'); 
+    SELECT * FROM CONSULTAS; 
+
+    DELETE FROM CONSULTAS 
+    WHERE IDCONSULTA = 55 OR IDCONSULTA = 56 OR IDCONSULTA = 57 OR IDCONSULTA = 58 ;
+    DROP TRIGGER CHECK_FECHA;
     
 
+-- 4. Elabore un procedimiento que no permita que se inserten números de 
+-- teléfono inválidos de los votantes. El rango permitido es de [600000000, 799999999]. 
+    
+    /*ESTRUCTURA ASSERTIONS
+        CREATE ASSERTIONS limit_localidades AS CHECK (CONSULTA-SQL)
+    */
+    
+        ALTER TABLE VOTANTES 
+        ADD CONSTRAINT CHECK_MOVIL_VOTANTES CHECK (
+            TELEFONO > 600000000 AND TELEFONO < 799999999
+        )
+
+        SELECT * FROM VOTANTES;
+        
+-- 5. Restrinja que el tipo de los eventos deban comenzar con letra inicial 
+-- mayúscula y debe terminar en “s”, además puede contener números. De no 
+-- cumplirse deberá impedir que se inserte en la tabla. Deshabilite la 
+-- restricción CK_NOMBRE durante este ejercicio. 
+
+        ALTER TABLE EVENTOS
+        DISABLE CONSTRAINT CK_NOMBRE;
+        -- ESTO NO TIENE NI PIES NI CABEZA 
+        -- HABRÍA QUE PASAR EL PRIMER CARACTER A ENTERO Y 
+        -- COMPROBAR QUE SE ENCUENTRA EN EL RANGO DE LAS MAYUSCULAS  
+        ALTER TABLE EVENTOS
+        ADD CONSTRAINT REQUISITOS_EVENTOS CHECK (
+           UPPER(SUBSTR(NOMBRE,1,1)) LIKE SUBSTR(NOMBRE,1,1) AND (NOMBRE LIKE '%s')
+        );
+        -- (NO FUNKA)
+        ALTER TABLE EVENTOS
+        DROP CONSTRAINT REQUISITOS_EVENTOS;
+        
+-- 6. Haga una funcionalidad que permita controlar la situación laboral 
+-- y/o la fecha de nacimiento de los votantes. Si existe un votante que 
+-- tenga más de 59 años y aún no está jubilado, deberá quedar registrado 
+-- su DNI en la tabla de control de ejecuciones, así como de cuál tabla 
+-- proviene la información.
+
+    CREATE OR REPLACE TRIGGER ultimotrigger 
+    BEFORE  INSERT OR UPDATE ON votantes 
+    FOR EACH ROW 
+    BEGIN 
+        IF :new.FECHANACIMIENTO > '09/01/61' THEN     
+            INSERT INTO audit_table(DATOS,TABLA) 
+            VALUES('votante con dni '||:new.DNI || 'tiene mas de 59 y no esta jubilado' ,'VOTANTES'); 
+        END IF; 
+    END; --UPDATE 
+    
+    DECLARE
+    BEGIN 
+        INSERT INTO VOTANTES (DNI,NOMBRECOMPLETO,ESTUDIOSSUPERIORES,
+                SITUACIONLABORAL,EMAIL,LOCALIDAD,FECHANACIMIENTO,TELEFONO) 
+        VALUES (30983719,'Antonio Vazquez Padilla','Basicos','Parado','ggg@r'
+        ,6,'22/11/18',600000002 ); 
+    END;
+
+SELECT * FROM AUDIT_TABLE; 
 
