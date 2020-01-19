@@ -32,6 +32,36 @@
 -- flexibilidad en su solución, es decir que deberá aceptar nuevos partidos. 
 -- Muestre la información con el siguiente formato. 
 
+    SET SERVEROUTPUT ON;
+    DECLARE
+        CURSOR C IS 
+            SELECT ER.RESULTADO, P.NOMBRECOMPLETO 
+            FROM EVENTOS_RESULTADOS ER, PARTIDOS P 
+            WHERE P.IDPARTIDO = ER.PARTIDO;
+        
+        TYPE RESULTADOS_MAP_TYPE IS TABLE OF NUMBER INDEX BY VARCHAR(64);
+        RESULTADOS_MAP RESULTADOS_MAP_TYPE;
+        
+        MAPKEY VARCHAR(64);
+    BEGIN
+        FOR nRow IN c LOOP
+          mapKey := nRow.NOMBRECOMPLETO;
+          IF resultadosMap.EXISTS(mapKey) THEN
+            resultadosMap(mapKey) := resultadosMap(mapKey) + nRow.RESULTADO;
+          ELSE
+            resultadosMap(mapKey) := nRow.RESULTADO;
+          END IF;
+        END LOOP;
+        
+        mapKey := resultadosMap.FIRST;
+        WHILE mapKey IS NOT NULL LOOP
+          DBMS_OUTPUT.PUT_LINE(mapKey || ' -> ' || resultadosMap(mapKey));
+          
+          mapKey := resultadosMap.NEXT(mapKey);
+        END LOOP;
+    END;
+
+
 
 -- 3. Obtener el nombre de todos los votantes cuyo DNI acaba igual que el 
 -- identificador de su localidad más 1. Es decir, el votante con DNI 30948214 
