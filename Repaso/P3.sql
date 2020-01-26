@@ -221,12 +221,43 @@
 
 
 -- 6. Obtener el nombre de los votantes cuya participacion ha sido menor
--- que la media de participaciones de todos los votantes a pesar de 
--- encontrarse en situación laboral de 'Activo'.
+-- que la media de participaciones de todos los votantes a pesar de (en caso de) 
+-- encontrarse en situacion laboral de 'Activo'.
+
+    SELECT V.NOMBRECOMPLETO, V.SITUACIONLABORAL, SUB.CONTEO
+    FROM VOTANTES V, ( 
+        SELECT C.VOTANTE, COUNT(C.VOTANTE) AS CONTEO
+        FROM CONSULTAS C 
+        GROUP BY C.VOTANTE
+    ) SUB 
+    WHERE V.DNI = SUB.VOTANTE
+        AND SUB.CONTEO < (
+            SELECT AVG(COUNT(C.VOTANTE))
+            FROM CONSULTAS C 
+            GROUP BY C.VOTANTE    
+        )
+        AND SITUACIONLABORAL = 'Activo'
 
 -- 7. Mostrar el nombre de las localidades ordenadas de mayor a menor 
 -- nivel de estudiosSuperiores medio de sus votantes. 
 
+    SELECT L.NOMBRE, SUB.ALGO, SUB.NINGUNO
+    FROM LOCALIDADES L , ( 
+        SELECT  V.LOCALIDAD, 
+            COUNT(CASE WHEN V.ESTUDIOSSUPERIORES != 'Ninguno' THEN 1 ELSE NULL END) AS ALGO,
+            COUNT(CASE WHEN V.ESTUDIOSSUPERIORES = 'Ninguno' THEN 1 ELSE NULL END) AS NINGUNO
+        FROM VOTANTES V 
+        GROUP BY V.LOCALIDAD
+    ) SUB
+    WHERE L.IDLOCALIDAD = SUB.LOCALIDAD
+    ORDER BY SUB.ALGO DESC
+    
 -- 8. Mostrar aquellas localidades cuyos votantes tienen un nivel de 
 -- estudiosSuperiores medio mayor que todas las medias de estudiosSuperiores 
 -- de las provincias.
+
+    /*
+        (?)
+    */
+
+
