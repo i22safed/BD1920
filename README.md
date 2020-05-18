@@ -1,6 +1,12 @@
-# BD1920
-Practicas SQL y PLSQL
-# Prueba
+asdfasdfasdfasdfasdfasd
+a
+sdf
+asd
+f
+asdf
+a
+sdf
+asd
 
-
-Funcionalidad para la RAMA A
+asdf
+asdf
